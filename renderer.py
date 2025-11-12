@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from io import BytesIO
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 from PIL import Image, ImageDraw, ImageFont
 
@@ -10,15 +11,44 @@ DEFAULT_WIDTH = 1280
 DEFAULT_HEIGHT = 720
 
 
+def _find_cjk_font() -> Optional[str]:
+    """Try to find a CJK-capable font installed in the system."""
+    candidates = [
+        # Noto / Source Han / HarmonyOS
+        "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.otf",
+        "/usr/share/fonts/opentype/noto/NotoSansCJKsc-Regular.otf",
+        "/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc",
+        "/usr/share/fonts/truetype/noto/NotoSansSC-Regular.ttf",
+        "/usr/share/fonts/truetype/source-han-sans/SourceHanSansCN-Regular.otf",
+        "/usr/share/fonts/truetype/harmonyos-sans/HarmonyOS_Sans_SC_Regular.ttf",
+        # Common fallbacks
+        "/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc",
+        "/usr/share/fonts/truetype/arphic/ukai.ttc",
+    ]
+    for c in candidates:
+        if Path(c).exists():
+            return c
+    return None
+
+
 def _load_font(size: int) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
     # Try common fonts; fallback to default
-    for name in [
+    import os
+
+    env_font = os.getenv("PICSTATUS_FONT_PATH")
+    cjk = env_font if (env_font and Path(env_font).exists()) else _find_cjk_font()
+    names = [
+        cjk,
         "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
         "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
-    ]:
+    ]
+    for name in filter(None, names):
         p = Path(name)
         if p.exists():
-            return ImageFont.truetype(str(p), size=size)
+            try:
+                return ImageFont.truetype(str(p), size=size)
+            except Exception:
+                continue
     return ImageFont.load_default()
 
 
@@ -29,11 +59,36 @@ def _bar(draw: ImageDraw.ImageDraw, x: int, y: int, w: int, h: int, percent: flo
     draw.rounded_rectangle((x, y, x + int(pw), y + h), radius=h // 2, fill=color)
 
 
-def render_status(collected: dict[str, Any], save_dir: Path) -> Path:
+def _paste_background(canvas: Image.Image, bg_bytes: Optional[bytes]) -> None:
+    if not bg_bytes:
+        return
+    try:
+        bg = Image.open(BytesIO(bg_bytes)).convert("RGB")
+        # cover fit
+        W, H = canvas.size
+        bw, bh = bg.size
+        scale = max(W / bw, H / bh)
+        bg = bg.resize((int(bw * scale), int(bh * scale)), Image.LANCZOS)
+        # center crop
+        bx = (bg.width - W) // 2
+        by = (bg.height - H) // 2
+        bg = bg.crop((bx, by, bx + W, by + H))
+        canvas.paste(bg, (0, 0))
+        # mask overlay
+        mask = Image.new("RGBA", (W, H), (250, 250, 250, 90))
+        canvas.paste(Image.alpha_composite(canvas.convert("RGBA"), mask), (0, 0))
+    except Exception:
+        pass
+
+
+def render_status(collected: dict[str, Any], save_dir: Path, bg_bytes: Optional[bytes] = None) -> Path:
     save_dir.mkdir(parents=True, exist_ok=True)
     W, H = DEFAULT_WIDTH, DEFAULT_HEIGHT
     img = Image.new("RGB", (W, H), (28, 30, 34))
     draw = ImageDraw.Draw(img)
+
+    # background
+    _paste_background(img, bg_bytes)
 
     title_font = _load_font(36)
     small_font = _load_font(22)
