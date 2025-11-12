@@ -44,10 +44,11 @@ def build_default_html(collected: dict[str, Any], bg_bytes: bytes) -> str:
         '<script src="/js/load-plugin.js"></script>', "",
     )
 
-    # 3) inline CSS style
+    # 3) inline CSS style + fix page width to component width to avoid right-side white area
+    page_fix = "html,body{margin:0;padding:0;width:650px;}"
     index_inlined_css = index_no_js.replace(
         '<link rel="stylesheet" href="/default/res/css/index.css" />',
-        f"<style>\n{css}\n</style>",
+        f"<style>\n{css}\n{page_fix}\n</style>",
     )
 
     # 4) inline background image via style instead of data-background-image
@@ -57,7 +58,18 @@ def build_default_html(collected: dict[str, Any], bg_bytes: bytes) -> str:
         f'<div class="main-background" style="background-image:url(\'data:image/jpeg;base64,{b64}\')">',
     )
 
-    # 5) put macros at the beginning so calls like {{ header(d) }} work
+    # 5) inline default avatar for header (replace lazy data-src with inline src)
+    try:
+        avatar_b64 = base64.b64encode((ROOT / "res" / "assets" / "default_avatar.webp").read_bytes()).decode("ascii")
+        index_bg = index_bg.replace(
+            'data-src="/api/bot_avatar/{{ info.self_id }}"',
+            f'src="data:image/webp;base64,{avatar_b64}"',
+        )
+    except Exception:
+        # ignore if asset missing
+        pass
+
+    # 6) put macros at the beginning so calls like {{ header(d) }} work
     tmpl = macros + "\n" + index_bg
 
     # Render with our own jinja to resolve macros, using the same keys structure
@@ -117,4 +129,3 @@ def build_default_html(collected: dict[str, Any], bg_bytes: bytes) -> str:
     }
     html = template.render(d=collected, config=config)
     return html
-

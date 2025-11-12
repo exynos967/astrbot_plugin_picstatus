@@ -42,11 +42,15 @@ class PicStatusPlugin(Star):
             collected.setdefault("ps_version", "v1.0.0")
             # Provide header bots info for template compatibility
             try:
+                bot_nick = os.getenv("PICSTATUS_BOT_NICK")
+                if not bot_nick:
+                    # Fallback to platform-specific defaults
+                    bot_nick = "AstrBot"
                 bots = [
                     {
                         "self_id": event.get_self_id(),
-                        "nick": event.get_sender_name() or "AstrBot",
-                        "adapter": event.get_platform_name() or "AstrBot",
+                        "nick": bot_nick,
+                        "adapter": (event.get_platform_name() or "AstrBot"),
                         "bot_connected": collected.get("nonebot_run_time", ""),
                         "msg_rec": 0,
                         "msg_sent": 0,
