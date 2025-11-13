@@ -63,6 +63,7 @@ def build_default_html(collected: dict[str, Any], bg_bytes: bytes, avatar_bytes:
         '<div class="main-background" data-background-image="/api/background">',
         f'<div class="main-background" style="background-image:url(\'data:image/jpeg;base64,{b64}\')">',
     )
+    # 不向 body/html 注入背景，避免整页截图时出现与主容器重复的背景
 
     # 5) inline default avatar for header (replace lazy data-src with inline src)
     try:
