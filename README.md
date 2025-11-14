@@ -119,4 +119,4 @@ astrbot_root/
 
 ## 特别感谢
 
-- [nonebot-plugin-picstatus](https://github.com/lgc-NB2Dev/nonebot-plugin-picstatus)[lgc2333](https://github.com/lgc2333)
+- [nonebot-plugin-picstatus](https://github.com/lgc-NB2Dev/nonebot-plugin-picstatus)[LgCookie](https://github.com/lgc2333)
