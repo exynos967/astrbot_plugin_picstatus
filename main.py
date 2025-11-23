@@ -122,8 +122,13 @@ class PicStatusPlugin(Star):
                 html = build_default_html(
                     collected, resolved.data, resolved.mime, avatar_bytes=avatar_bytes
                 )
-                # 未增强 t2i：整页截图；页面背景由模板负责铺满
-                options = {"type": "jpeg", "quality": 90, "full_page": True}
+                # 使用 t2i ultra 档位提高清晰度，宽度仍由模板与 viewport 控制
+                options = {
+                    "type": "jpeg",
+                    "quality": 90,
+                    "full_page": True,
+                    "device_scale_factor_level": "ultra",
+                }
                 out_url = await self.html_render(html, {}, return_url=True, options=options)
                 image_to_send = out_url
                 logger.info("PicStatus: AstrBot t2i renderer used")
