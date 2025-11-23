@@ -23,7 +23,7 @@ CACHE_DIR = Path(__file__).parent / ".cache"
 	PLUGIN_NAME,
 	"薄暝",
 	"以图片形式显示当前设备的运行状态",
-	"1.0.0",
+	"1.1.0",
 )
 class PicStatusPlugin(Star):
     def __init__(self, context: Context, config=None):

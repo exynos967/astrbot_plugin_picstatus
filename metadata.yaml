@@ -1,6 +1,6 @@
 name: astrbot_plugin_picstatus
 display_name: PicStatus
 desc: 以图片形式显示当前设备的运行状态。
-version: v1.0.0
+version: v1.1.0
 author: 薄暝
 repo: https://github.com/exynos967/astrbot_plugin_picstatus
