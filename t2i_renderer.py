@@ -57,8 +57,8 @@ def build_default_html(
         '<script src="/js/load-plugin.js"></script>', "",
     )
 
-    # 3) inline CSS style + fix page width to component width to avoid right-side white area
-    page_fix = "html,body{margin:0;padding:0;width:650px;}"
+    # 3) inline CSS style + shrink page to content width to avoid right-side white area
+    page_fix = "html,body{margin:0;padding:0;width:min-content;display:inline-block;}"
     index_inlined_css = index_no_js.replace(
         '<link rel="stylesheet" href="/default/res/css/index.css" />',
         f"<style>\n{css}\n{page_fix}\n</style>",
