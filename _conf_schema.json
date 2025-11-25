@@ -1,7 +1,63 @@
 {
-  "avatar_text": {
-    "description": "头像右侧显示的文字；留空则使用 Bot 名称",
+  "avatar_url": {
+    "description": "自定义头像图片 URL",
     "type": "string",
-    "default": ""
+    "default": "",
+    "hint": "留空则使用本地头像或 Bot 默认头像。"
+  },
+  "avatar_use_local": {
+    "description": "是否启用本地头像路径",
+    "type": "bool",
+    "default": true,
+    "hint": "关闭后即使配置了本地路径也不会读取，将回退到 avatar_url 或默认头像。"
+  },
+  "avatar_local_path": {
+    "description": "自定义头像本地路径",
+    "type": "string",
+    "default": "",
+    "hint": "优先级最高；填写后直接读取本地文件，失败则回退到 avatar_url/Bot 默认头像。"
+  },
+  "avatar_text": {
+    "description": "状态图头像右侧显示名称",
+    "type": "string",
+    "default": "AstrBot",
+    "hint": "为空则使用默认“AstrBot”。"
+  },
+  "bg_provider": {
+    "description": "背景获取来源",
+    "type": "string",
+    "default": "loli",
+    "options": ["loli", "lolicon", "local", "none"],
+    "hint": "支持的 provider：loli/lolicon/local/none，默认 loli。"
+  },
+  "bg_local_path": {
+    "description": "本地背景图路径",
+    "type": "string",
+    "default": "",
+    "hint": "留空则不使用本地背景，填写绝对或相对路径。"
+  },
+  "bg_preload_count": {
+    "description": "预加载背景数量",
+    "type": "int",
+    "default": 1,
+    "hint": "后台预取的背景张数，>=1。"
+  },
+  "bg_req_timeout": {
+    "description": "背景请求超时（秒）",
+    "type": "int",
+    "default": 10,
+    "hint": "请求在线背景的超时时间。"
+  },
+  "bg_proxy": {
+    "description": "背景请求代理",
+    "type": "string",
+    "default": "",
+    "hint": "可填写 http/https/socks5 代理地址，留空不使用代理。"
+  },
+  "bg_lolicon_r18_type": {
+    "description": "Lolicon 背景 R18 类型",
+    "type": "int",
+    "default": 0,
+    "hint": "0=正常，1=R18，2=混合。仅在 bg_provider=lolicon 时生效。"
   }
 }
